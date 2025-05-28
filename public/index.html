@@ -1,0 +1,36 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lyoko</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas class="matrix-canvas"></canvas>
+
+  <div class="terminal-box">
+    <div class="output" id="output">
+      <p><span class="aelita">Aelita:</span> Sistema en espera de comandos...</p>
+      <p><span class="aelita">Aelita:</span> Conexión establecida con el entorno local.</p>
+      <p><span class="aelita">Aelita:</span> Diagnóstico de sintaxis en pausa.</p>
+    </div>
+    <div class="input-line">
+      <span id="ia-label" class="hopper">Hopper:</span>
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Escribe tu mensaje y presiona Enter..."
+        autocomplete="off"
+      />
+    </div>
+  </div>
+
+  <!-- Scripts necesarios -->
+  <script src="js/matrix.js"></script>
+  <script type="module" src="js/chat.js"></script>
+</body>
+</html>
+
+
+
+
