@@ -1,7 +1,7 @@
 {
-  "name": "aelita-proyecto",
+  "name": "aelita-xana-ai",
   "version": "1.0.0",
-  "description": "IA Aelita para asistencia de programación backend",
+  "description": "Sistema dual de IA: Aelita (asistencia) y Xana (protección)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -13,7 +13,5 @@
   "engines": {
     "node": ">=14"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }

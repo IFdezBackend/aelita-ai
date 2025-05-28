@@ -1,44 +1,71 @@
 :root {
-  --matrix-color: #0ff;       /* Azul para la lluvia tipo Matrix */
-  --terminal-text: #0f0;      /* Verde para el texto estilo terminal */
-  --aelita-color: #f0f;       /* Rosa para el nombre "Aelita" */
-  --XAYA-color: red;       /* Rojo para el nombre "XAYA" */
-  --Hopper-color: yellow; /* amarillo para el nombre "Hoppe" */
+  --matrix-color: #00ffcc;
+  --terminal-text: #00ff00;
+  --aelita-color: #ff66cc;
+  --XANA-color: #00ff00;
+  --Hopper-color: yellow;
 }
 
 body {
   margin: 0;
   background: black;
-  font-family: 'Courier New', Courier, monospace;
-  color: var(--terminal-text);
+  font-family: monospace;
+  color: white;
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  position: relative;
 }
 
-canvas.matrix-canvas {
-  position: absolute;
+.matrix-canvas {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   z-index: 0;
 }
 
 .terminal-box {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  border: 1px solid var(--terminal-text);
-  padding: 10px;
-  z-index: 2;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 800px;
   background-color: rgba(0, 0, 0, 0.85);
+  border: 1px solid var(--matrix-color);
+  padding: 1rem;
+  z-index: 1;
+  box-shadow: 0 0 20px var(--matrix-color);
+}
+
+.output {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--matrix-color);
+}
+
+.input-line {
+  display: flex;
+  align-items: center;
+}
+
+.input-line input {
+  flex: 1;
+  background: black;
+  color: white;
+  border: none;
+  font-family: monospace;
+  font-size: 1rem;
+  padding: 0.5rem;
+  outline: none;
 }
 
 .aelita {
   color: var(--aelita-color);
+  margin-right: 5px;
+}
+
+.xana {
+  color: var(--XANA-color);
   margin-right: 5px;
 }
 
@@ -47,29 +74,6 @@ canvas.matrix-canvas {
   margin-right: 5px;
 }
 
-.xaya {
-  color: var(--XAYA-color);
-  margin-right: 5px;
-}
-
-.output p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-.input-line {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.input-line input {
-  background: none;
-  border: none;
-  color: var(--terminal-text);
-  outline: none;
-  flex: 1;
-  font-family: inherit;
-  font-size: 14px;
-  margin-left: 5px;
+strong {
+  font-weight: bold;
 }

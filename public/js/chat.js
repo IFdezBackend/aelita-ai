@@ -1,4 +1,5 @@
-import { responder } from "../ai/aelita.js";
+import { responder as responderAelita } from "../ai/aelita.js";
+import { responder as responderXana } from "../ai/xana.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const userInput = document.getElementById("user-input");
@@ -11,11 +12,11 @@ document.addEventListener("DOMContentLoaded", () => {
       color: "var(--aelita-color)",
       intro: "Hola, soy Aelita. ¿En qué puedo ayudarte con programación?",
     },
-    Xaya: {
-      name: "XAYA",
-      color: "var(--XAYA-color)",
-      intro: "Sistema XAYA en línea. Directrices priorizadas.",
-    },
+    Xana: {
+      name: "XANA",
+      color: "var(--XANA-color)",
+      intro: "Sistema XANA en línea. Seguridad priorizada.",
+    }
   };
 
   function agregarMensaje(nombre, mensaje, colorVar) {
@@ -25,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     output.scrollTop = output.scrollHeight;
   }
 
-  function procesarMensaje(input) {
+  async function procesarMensaje(input) {
     if (input.startsWith("/protocolo ")) {
       const nuevaAI = input.split(" ")[1];
       if (AIs[nuevaAI]) {
@@ -40,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     agregarMensaje("hopper", input, "var(--Hopper-color)");
 
-    responder(input).then((respuesta) => {
-      agregarMensaje(AIs[currentAI].name, respuesta, AIs[currentAI].color);
-    });
+    const responder = currentAI === "Aelita" ? responderAelita : responderXana;
+    const respuesta = await responder(input);
+    agregarMensaje(AIs[currentAI].name, respuesta, AIs[currentAI].color);
   }
 
   userInput.addEventListener("keydown", (e) => {
@@ -54,6 +55,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-
-

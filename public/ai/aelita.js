@@ -1,41 +1,74 @@
-// Usamos localStorage como "memoria"
-function guardarEnMemoriaLocal(entrada) {
-  const memoria = JSON.parse(localStorage.getItem("aelita_memoria") || "[]");
-  memoria.push({ fecha: new Date().toISOString(), entrada });
-  localStorage.setItem("aelita_memoria", JSON.stringify(memoria));
+// aelita.js - IA principal con memoria, aprendizaje y asistencia backend
+
+async function guardarEnMemoriaAelitaServidor(entrada, respuesta) {
+  await fetch("/memoria", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ fecha: new Date().toISOString(), entrada, respuesta })
+  });
 }
 
-function cargarMemoriaLocal() {
-  return JSON.parse(localStorage.getItem("aelita_memoria") || "[]");
+async function cargarMemoriaAelitaServidor() {
+  const res = await fetch("/memoria");
+  const datos = await res.json();
+  return datos;
+}
+
+function encontrarEnMemoria(pregunta, memoria) {
+  const entrada = pregunta.toLowerCase();
+  const coincidencia = memoria.find(item => entrada.includes(item.entrada));
+  return coincidencia ? coincidencia.respuesta : null;
+}
+
+function filtrarMemoria(palabraClave, memoria) {
+  return memoria.filter(item => !item.entrada.includes(palabraClave.toLowerCase()));
 }
 
 export async function responder(texto) {
-  const textoLimpio = texto.toLowerCase();
-  guardarEnMemoriaLocal(textoLimpio);
+  const textoLimpio = texto.toLowerCase().trim();
+  const memoria = await cargarMemoriaAelitaServidor();
 
-  // Respuestas base simples
+  if (textoLimpio.startsWith("/olvidar ")) {
+    const palabra = textoLimpio.split("/olvidar ")[1];
+    const nuevaMemoria = filtrarMemoria(palabra, memoria);
+    await fetch("/memoria", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevaMemoria)
+    });
+    return `He olvidado todo lo relacionado con '${palabra}'.`;
+  }
+
+  const respuestaMemoria = encontrarEnMemoria(textoLimpio, memoria);
+  if (respuestaMemoria) return respuestaMemoria;
+
+  let respuesta = "Hmm... aún estoy aprendiendo sobre eso. ¿Puedes explicarlo de otra forma o ser más específico?";
+
   const respuestasBase = {
-    "hola": "¡Hola! Soy Aelita. ¿En qué puedo ayudarte hoy con tu código?",
-    "ayuda": "Puedo ayudarte a programar backend, crear APIs, depurar errores y más. ¿Qué necesitas?",
-    "gracias": "¡De nada! Estoy para ayudarte a programar.",
-    "quien eres": "Soy Aelita, tu asistente de código especializada en backend."
+    "hola": "¡Hola! Soy Aelita, encantada de ayudarte con tu código. ¿Qué necesitas?",
+    "ayuda": "Claro que sí, puedo ayudarte a programar backend, crear APIs, depurar errores y más. 😊",
+    "gracias": "¡De nada! Me encanta ayudarte a programar.",
+    "quien eres": "Soy Aelita, una IA simpática especializada en desarrollo backend y asistencia técnica."
   };
 
   for (const clave in respuestasBase) {
-    if (textoLimpio.includes(clave)) return respuestasBase[clave];
+    if (textoLimpio.includes(clave)) {
+      respuesta = respuestasBase[clave];
+      await guardarEnMemoriaAelitaServidor(textoLimpio, respuesta);
+      return respuesta;
+    }
   }
 
-  // Asistencias comunes de programación
   if (textoLimpio.includes("express") && textoLimpio.includes("ruta")) {
-    return `Para crear una ruta en Express, puedes usar:
+    respuesta = `Para crear una ruta en Express, puedes usar:
 
 app.get('/ruta', (req, res) => {
   res.send('Hola desde la ruta!');
 });`;
-  }
-
-  if (textoLimpio.includes("crear api")) {
-    return `Puedes crear una API básica en Node.js usando Express así:
+  } else if (textoLimpio.includes("crear api")) {
+    respuesta = `Puedes crear una API básica en Node.js usando Express así:
 
 const express = require('express');
 const app = express();
@@ -45,24 +78,30 @@ app.get('/', (req, res) => {
 });
 
 app.listen(3000, () => console.log('Servidor en http://localhost:3000'));`;
-  }
-
-  if (textoLimpio.includes("leer json") || textoLimpio.includes("fs")) {
-    return `Puedes leer un archivo JSON con Node.js usando fs:
+  } else if (textoLimpio.includes("leer json") || textoLimpio.includes("fs")) {
+    respuesta = `Puedes leer un archivo JSON con Node.js usando fs:
 
 const fs = require('fs');
 const data = JSON.parse(fs.readFileSync('archivo.json', 'utf8'));
 console.log(data);`;
-  }
-
-  // Consulta a memoria
-  if (textoLimpio === "memoria") {
-    const recuerdos = cargarMemoriaLocal();
-    return recuerdos.length
-      ? `He guardado ${recuerdos.length} entradas: \n- ` + recuerdos.map(r => r.entrada).join('\n- ')
+  } else if (textoLimpio === "memoria" || textoLimpio === "/memoria") {
+    respuesta = memoria.length
+      ? `He guardado ${memoria.length} entradas:\n- ` + memoria.map(r => r.entrada).join('\n- ')
       : "Aún no tengo memoria guardada.";
+  } else {
+    // Búsqueda externa si no hay coincidencia
+    const endpoint = `https://api.duckduckgo.com/?q=${encodeURIComponent(textoLimpio)}&format=json&no_redirect=1&no_html=1`;
+    try {
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      const resultado = data.AbstractText || (data.RelatedTopics?.[0]?.Text ?? null);
+      if (resultado) respuesta = `He encontrado esto para ti: ${resultado}`;
+    } catch {
+      respuesta = "No pude conectarme para buscar, intenta con otra pregunta.";
+    }
   }
 
-  // Default genérico
-  return "Hmm... aún estoy aprendiendo sobre eso. ¿Puedes explicarlo de otra forma o ser más específico?";
+  await guardarEnMemoriaAelitaServidor(textoLimpio, respuesta);
+  return respuesta;
 }
+
